@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLO Assessment Dashboard | วพบ.สระบุรี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700;800&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f8; --panel:#ffffff; --ink:#0f1a36; --muted:#586585; --line:#dbe2ef;
+    --primary:#1d4ed8; --primary-d:#14296b; --strategic:#1e3a8a;
+    --analytic:#0e7490; --analytic-2:#6d28d9;
+    --tier1:#dc2626; --tier2:#f59e0b; --tier3:#16a34a;
+    --threshold:#15803d; --threshold-ink:#ffffff;
+    --target:#bbf7d0;   --target-ink:#14532d;
+    --excellence:#ffffff; --excellence-ink:#1f3a2e; --excellence-bd:#cfe0d4;
+    --k:#1d4ed8; --s:#0e7490; --a:#7c3aed;
+    --shadow:0 1px 2px rgba(15,26,54,.05),0 10px 30px rgba(20,41,107,.10);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px 80px}
+  header.top{background:linear-gradient(120deg,var(--primary-d) 0%,var(--strategic) 55%,var(--primary) 100%);color:#fff;padding:30px 0 26px;position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.06)}
+  header.top::before{content:"+";position:absolute;right:40px;bottom:-30px;font-size:160px;color:rgba(255,255,255,.07);font-weight:700;line-height:1}
+  .top .wrap{position:relative;z-index:2}
+  .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:500}
+  header.top h1{font-size:clamp(22px,3.4vw,34px);font-weight:700;margin:6px 0 4px;letter-spacing:-.01em}
+  header.top p{opacity:.9;font-size:15px;max-width:760px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .badges span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:500}
+  nav.tabs{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(16,40,48,.04)}
+  .tabs .wrap{display:flex;gap:4px;overflow-x:auto;padding:0 18px}
+  .tab{flex:0 0 auto;border:none;background:none;font-family:inherit;font-size:14.5px;font-weight:500;color:var(--muted);padding:16px 16px 13px;cursor:pointer;border-bottom:3px solid transparent;transition:.18s;white-space:nowrap}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+  section.view{display:none;animation:fade .35s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h2.sec{font-size:20px;font-weight:700;margin:30px 0 4px;display:flex;align-items:center;gap:10px}
+  h2.sec .dot{width:9px;height:22px;border-radius:4px;background:var(--primary)}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--primary);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:30px;font-weight:700;color:var(--primary);font-family:'Sarabun',sans-serif;line-height:1}
+  .kpi .l{font-size:13px;color:var(--muted);margin-top:6px}
+  .kpi .ic{font-size:18px;float:right;opacity:.5}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .plo-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .plo-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent,var(--primary))}
+  .plo-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(16,40,48,.13);border-color:var(--accent,var(--primary))}
+  .plo-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .plo-id{font-weight:700;font-size:17px;color:var(--accent,var(--primary));font-family:'Sarabun',sans-serif}
+  .ksa{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;color:#fff}
+  .plo-name{font-weight:600;font-size:15px;margin-bottom:4px}
+  .plo-desc{font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+  .plo-foot{display:flex;gap:6px;margin-top:12px;font-size:11px}
+  .crit{flex:1;text-align:center;padding:6px 2px;border-radius:8px;font-weight:600}
+  .crit small{display:block;font-size:9px;font-weight:500;opacity:.8}
+  .c-t{background:var(--threshold);color:var(--threshold-ink)}
+  .c-g{background:var(--target);color:var(--target-ink)}
+  .c-e{background:var(--excellence);color:var(--excellence-ink);border:1px solid var(--excellence-bd)}
+  .plo-levels{display:flex;gap:4px;margin-top:10px}
+  .plo-levels span{flex:1;text-align:center;font-size:10px;font-weight:600;padding:3px 0;border-radius:6px;background:#f0f4f8;color:var(--muted)}
+  .plo-levels span b{display:block;font-size:12px;font-family:'Sarabun',sans-serif}
+  .lev-I{color:#2563eb!important}.lev-R{color:#0891b2!important}.lev-M{color:#1e3a8a!important}.lev-na{color:#b6c0c4!important}
+  .open-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:right}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13px}
+  .legend b{display:inline-flex;align-items:center;gap:7px;font-weight:500;color:var(--muted)}
+  .sw{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+  .dom-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+  .dom-row{display:flex;align-items:center;gap:14px;margin:12px 0}
+  .dom-lbl{width:230px;font-size:13.5px;font-weight:500;flex-shrink:0}
+  .bar{flex:1;height:26px;background:#f0f4f5;border-radius:8px;overflow:hidden;position:relative}
+  .bar i{display:block;height:100%;border-radius:8px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .bar span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:#fff}
+  .hm{width:100%;border-collapse:separate;border-spacing:5px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+  .hm th{font-size:12px;font-weight:600;color:var(--muted);padding:8px 6px;text-align:center;vertical-align:bottom}
+  .hm th small{display:block;font-weight:400;font-size:10px;opacity:.8;margin-top:2px}
+  .hm th.rowh{text-align:left}
+  .hm td{text-align:center;padding:0;vertical-align:top}
+  .hm th.grp{color:#ffffff;font-size:20px;font-weight:800;border-radius:10px;padding:13px 12px;letter-spacing:.01em;line-height:1.2}
+  .grp-ylo{background:#db2777}
+  .grp-plo{background:#1d4ed8}
+  .hm .ploname{position:sticky;left:0;z-index:3;text-align:left;font-size:12.5px;font-weight:500;padding:9px 10px;background:var(--panel);min-width:140px;max-width:165px;white-space:normal;box-shadow:3px 0 6px -3px rgba(15,31,61,.18);border-radius:9px;cursor:pointer}
+  .hm .ploname b{color:var(--primary);font-family:'Sarabun',sans-serif;font-size:14px}
+  .cell{display:flex;flex-direction:column;gap:4px;min-width:92px}
+  .ylo-lvl{font-size:11px;font-weight:700;font-family:'Sarabun',sans-serif;padding:2px 0;border-radius:5px;margin-bottom:1px}
+  .crit-row{border-radius:7px;padding:5px 8px;font-size:12px;font-family:'Sarabun',sans-serif;display:flex;justify-content:space-between;align-items:center;line-height:1}
+  .crit-row span{font-weight:500;opacity:.9}
+  .crit-row b{font-weight:700;font-size:13px}
+  .r-t{background:var(--threshold);color:var(--threshold-ink)}
+  .r-g{background:var(--target);color:var(--target-ink)}
+  .r-e{background:var(--excellence);color:var(--excellence-ink);border:1px solid var(--excellence-bd)}
+  .pbox{border-radius:7px;padding:9px 8px;font-size:12px;font-weight:600;font-family:'Sarabun',sans-serif;line-height:1.35;min-width:120px;text-align:center;height:100%}
+  .pbox.t{background:var(--threshold);color:var(--threshold-ink)}
+  .pbox.g{background:var(--target);color:var(--target-ink)}
+  .pbox.e{background:var(--excellence);color:var(--excellence-ink);border:1px solid var(--excellence-bd)}
+  .txtcell{font-size:11.5px;font-weight:400;color:var(--ink);text-align:left;line-height:1.5;padding:9px 10px;background:#f4f7fc;border-radius:7px;min-width:150px;max-width:210px}
+  .txtcell.strong{font-weight:600;color:var(--analytic);text-align:center;min-width:80px}
+  .txtcell.dom{min-width:120px;max-width:150px;color:var(--muted)}
+  .ksa-cell{display:inline-block;font-size:13px;padding:7px 14px;border-radius:999px;color:#fff;font-weight:700}
+  .na-box{background:#eef2f7;color:#9aa7bd;border-radius:9px;padding:24px 6px;font-size:12.5px;font-weight:400}
+  .back{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 15px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--ink);margin:24px 0 18px}
+  .back:hover{border-color:var(--primary);color:var(--primary)}
+  .detail-hd{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--accent,var(--primary));border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .detail-hd .top-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .detail-hd h3{font-size:24px;color:var(--accent,var(--primary));font-family:'Sarabun',sans-serif}
+  .detail-hd .full{font-size:15.5px;font-weight:500;line-height:1.6}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .meta .pill{font-size:12.5px;background:#f0f4f5;padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .meta .pill b{color:var(--ink)}
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .panel.full-w{grid-column:1/-1}
+  .panel h4{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .panel h4 .tag{font-size:11px;color:#fff;padding:3px 9px;border-radius:6px}
+  .lvl{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .lvl:last-child{border:none}
+  .lvl .badge{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:700;flex-shrink:0;font-size:15px}
+  .lvl .badge.b-t{background:var(--threshold);color:var(--threshold-ink)}
+  .lvl .badge.b-g{background:var(--target);color:var(--target-ink)}
+  .lvl .badge.b-e{background:var(--excellence);color:var(--excellence-ink);border:1px solid var(--excellence-bd)}
+  .lvl .txt{flex:1;font-size:13.5px}
+  .lvl .txt b{display:block;font-size:12px;color:var(--muted);font-weight:500}
+  /* Milestone detail track w/ 3 levels */
+  .ms-track{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .ms-step{flex:1;min-width:150px;text-align:center;background:#f6f9fa;border:1px solid var(--line);border-radius:12px;padding:12px 8px;cursor:pointer;transition:.18s}
+  .ms-step:hover{border-color:var(--primary);box-shadow:0 4px 14px rgba(20,41,107,.12);transform:translateY(-2px)}
+  .ms-step.na{cursor:default;opacity:.7}
+  .ms-step.na:hover{transform:none;box-shadow:none;border-color:var(--line)}
+  .ms-step .yr{font-size:11px;color:var(--muted)}
+  .ms-step .lev{font-size:20px;font-weight:700;margin:2px 0;font-family:'Sarabun',sans-serif}
+  .ms-3{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+  .ms-3 .mrow{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-family:'Sarabun',sans-serif;border-radius:5px;padding:3px 7px;line-height:1}
+  .ms-3 .mrow b{font-weight:700;font-size:12.5px}
+  .ms-tap{font-size:9.5px;color:var(--muted);margin-top:6px;opacity:.8}
+  .lev.I{color:#2563eb}.lev.R{color:#0891b2}.lev.M{color:#1e3a8a}.lev.na{color:#b6c0c4}
+  /* YLO detail expand box */
+  .ylo-detail{background:#f4f7fc;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px;display:none;animation:fade .3s}
+  .ylo-detail.show{display:block}
+  .ylo-detail h5{font-size:14px;color:var(--primary);font-family:'Sarabun',sans-serif;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .ylo-detail .lvbadge{font-size:11px;color:#fff;padding:2px 9px;border-radius:6px}
+  .ylo-detail .ent{font-size:12.5px;margin:7px 0;line-height:1.55}
+  .ylo-detail .ent b{color:var(--muted);font-weight:600;display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+  .ylo-crit{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .ylo-crit .cc{font-size:11px;padding:5px 10px;border-radius:7px;font-family:'Sarabun',sans-serif;font-weight:600}
+  .tier-note{background:#fff;border-left:3px solid var(--tier1);border-radius:7px;padding:8px 11px;font-size:12px;margin-top:8px;color:var(--ink);line-height:1.5}
+  .assess-txt{font-size:13.5px;color:var(--ink);line-height:1.6}
+  .assess-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:10px}
+  .assess-grid .ag{font-size:12.5px}
+  .assess-grid .ag b{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-bottom:1px}
+  .indiv-crit{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .indiv-crit .ic2{flex:1;min-width:120px;background:#f6f9fa;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px}
+  .indiv-crit .ic2 b{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+  .scorer{background:linear-gradient(135deg,#f0fbfc,#eef6f0);border:1px dashed var(--primary);border-radius:var(--radius);padding:18px;margin-top:18px}
+  .scorer label{font-size:13px;font-weight:500;color:var(--muted)}
+  .scorer .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px}
+  .scorer input[type=range]{flex:1;min-width:180px;accent-color:var(--primary)}
+  .scorer .out{font-size:34px;font-weight:700;font-family:'Sarabun',sans-serif;min-width:90px;text-align:center}
+  .verdict{padding:9px 16px;border-radius:10px;font-weight:600;font-size:14px;color:#fff}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .tier .th{padding:16px 18px;color:#fff}
+  .tier .th .t{font-size:18px;font-weight:700}
+  .tier .th .c{font-size:12.5px;opacity:.92;margin-top:3px}
+  .tier .bd{padding:16px 18px}
+  .tier .bd .lab{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:12px;display:block}
+  .tier .bd ul{margin:5px 0 0 0;padding-left:18px;font-size:13px}
+  .tier .bd li{margin:3px 0}
+  .tier .bd p{font-size:13px;margin-top:3px}
+  .timeline{position:relative;padding-left:34px;margin-top:10px}
+  .timeline::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl-item{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .tl-item::before{content:"";position:absolute;left:-29px;top:20px;width:14px;height:14px;border-radius:50%;background:var(--primary);border:3px solid #fff;box-shadow:0 0 0 2px var(--primary)}
+  .tl-item .when{font-size:12px;color:var(--primary);font-weight:600}
+  .tl-item h4{font-size:16px;font-weight:700;margin:2px 0 6px}
+  .tl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:13px;margin-top:8px}
+  .tl-grid b{color:var(--muted);font-weight:500}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+  @media(max-width:760px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .panels{grid-template-columns:1fr}
+    .tiers{grid-template-columns:1fr}
+    .tl-grid{grid-template-columns:1fr}
+    .dom-lbl{width:140px}
+    .assess-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">PLO Assessment Plan · AUN-QA Version 4</div>
+    <h1>BCNS PLO Assessment Plan Dashboard</h1>
+    <p>หลักสูตรพยาบาลศาสตรบัณฑิต (หลักสูตรปรับปรุง พ.ศ. 2565) · วิทยาลัยพยาบาลบรมราชชนนี สระบุรี</p>
+    <div class="badges">
+      <span>★ 10 PLOs</span><span>เกณฑ์ 3 ระดับ</span><span>Milestone I→R→M</span>
+      <span>ระบบช่วยเหลือ 3 Tier</span><span>AUN-QA Criterion 1.5 / 8.4</span>
+    </div>
+  </div>
+</header>
+<nav class="tabs">
+  <div class="wrap" id="tabbar">
+    <button class="tab active" data-v="overview">ภาพรวม</button>
+    <button class="tab" data-v="milestone">Milestone รายชั้นปี</button>
+    <button class="tab" data-v="detail">รายละเอียด PLO</button>
+    <button class="tab" data-v="tier">ระบบช่วยเหลือ 3 Tier</button>
+    <button class="tab" data-v="cycle">วงรอบติดตาม</button>
+  </div>
+</nav>
+<div class="wrap">
+  <section class="view active" id="overview">
+    <div class="kpis">
+      <div class="kpi"><span class="ic">🎯</span><div class="n">10</div><div class="l">ผลลัพธ์การเรียนรู้ (PLOs)</div></div>
+      <div class="kpi"><span class="ic">🧠</span><div class="n">3</div><div class="l">Domain (K · S · A)</div></div>
+      <div class="kpi"><span class="ic">📈</span><div class="n">4</div><div class="l">ชั้นปี (I→R→M)</div></div>
+      <div class="kpi"><span class="ic">🩺</span><div class="n">3</div><div class="l">ระดับช่วยเหลือ (Tier)</div></div>
+    </div>
+    <h2 class="sec"><span class="dot"></span>ผลลัพธ์การเรียนรู้ทั้ง 10 ด้าน</h2>
+    <div class="sub">คลิกการ์ด PLO เพื่อเจาะดูรายละเอียดเกณฑ์ 3 ระดับ, Milestone รายชั้นปี (พร้อมสาระ/รายวิชา/เกณฑ์รายบุคคล/แผน Tier) และวิธีการประเมินแบบเชื่อมโยง</div>
+    <div class="legend">
+      <b><span class="sw" style="background:var(--threshold)"></span>① ขั้นต่ำ (Threshold)</b>
+      <b><span class="sw" style="background:var(--target)"></span>② เป้าหมาย (Target)</b>
+      <b><span class="sw" style="background:var(--excellence)"></span>③ ท้าทาย (Excellence)</b>
+      <b><span class="sw" style="background:var(--k)"></span>K · พุทธิพิสัย</b>
+      <b><span class="sw" style="background:var(--s)"></span>S · ทักษะพิสัย</b>
+      <b><span class="sw" style="background:var(--a)"></span>A · จิตพิสัย</b>
+    </div>
+    <div class="grid" id="ploGrid"></div>
+    <h2 class="sec"><span class="dot"></span>การกระจายตาม Domain การเรียนรู้</h2>
+    <div class="sub">จำนวน PLO จำแนกตามองค์ประกอบ KSA (นับซ้ำได้กรณี PLO บูรณาการหลาย Domain)</div>
+    <div class="dom-wrap" id="domWrap"></div>
+  </section>
+  <section class="view" id="milestone">
+    <h2 class="sec"><span class="dot"></span>Milestone การบรรลุ PLO รายชั้นปี</h2>
+    <div class="sub">กลุ่ม <b>YLOs</b> = เกณฑ์กลุ่มรายชั้นปี แสดงครบ ①②③ พร้อม Level (I/R/M) · กลุ่ม <b>PLOs</b> = ระดับหลักสูตร (วิธีวัด · Direct · Indirect · เกณฑ์ ①②③ · Domain · KSA) — เลื่อนแนวนอนเพื่อดูคอลัมน์ PLO-Level · คลิกชื่อ PLO เพื่อเจาะรายละเอียด</div>
+    <div style="overflow-x:auto"><table class="hm" id="heatmap"></table></div>
+    <div class="legend" style="margin-top:14px">
+      <b><span class="sw" style="background:var(--threshold)"></span>① ขั้นต่ำ · Threshold</b>
+      <b><span class="sw" style="background:var(--target)"></span>② เป้าหมาย · Target</b>
+      <b><span class="sw" style="background:var(--excellence);border-color:var(--excellence-bd)"></span>③ ท้าทาย · Excellence</b>
+      <b><span class="sw" style="background:#eef2f7"></span>– ไม่มีการประเมินในชั้นปีนี้</b>
+    </div>
+  </section>
+  <section class="view" id="detail">
+    <button class="back" id="backBtn">← กลับไปภาพรวม</button>
+    <div id="detailBody"></div>
+  </section>
+  <section class="view" id="tier">
+    <h2 class="sec"><span class="dot"></span>ระบบกำกับ ติดตาม และช่วยเหลือนักศึกษา 3 ระดับ</h2>
+    <div class="sub">โครงสร้างระบบ Tier กลางใช้กับทุก PLO · เกณฑ์ Tier เฉพาะของแต่ละ PLO รายชั้นปีดูได้ในหน้า "รายละเอียด PLO"</div>
+    <div class="tiers" id="tierWrap"></div>
+    <h2 class="sec" style="margin-top:34px"><span class="dot"></span>ตารางสรุปเกณฑ์ Tier รายชั้นปี (เชื่อมจากไฟล์ PLO)</h2>
+    <div class="sub">แต่ละ PLO มีเกณฑ์ตัดสิน Tier 1 / Tier 2 เฉพาะของตนเองในแต่ละชั้นปี — เลือก PLO เพื่อดู</div>
+    <div style="margin-bottom:14px"><select id="tierPloSel" style="font-family:inherit;font-size:14px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer"></select></div>
+    <div id="tierTable"></div>
+  </section>
+  <section class="view" id="cycle">
+    <h2 class="sec"><span class="dot"></span>วงรอบการกำกับติดตาม (Monitoring Cycle)</h2>
+    <div class="sub">4 รอบต่อปีการศึกษา · เชื่อมข้อมูล YLO → รายงาน → CQI ปรับปรุงหลักสูตรต่อเนื่อง</div>
+    <div class="timeline" id="cycleWrap"></div>
+  </section>
+</div>
+<footer>
+  แดชบอร์ด PLO Assessment Plan · ข้อมูลสกัดตรงจากไฟล์ Excel ต้นฉบับทั้ง 10 PLO (Direct/Indirect · YLO รายชั้นปี · เกณฑ์รายบุคคล/กลุ่ม · แผน Tier) · วพบ.สระบุรี
+</footer>
+
+<script>
+/* ===== DATA (สกัดตรงจากไฟล์ Excel ต้นฉบับทั้ง 13 ชีต) ===== */
+const PLOS=[
+ {
+  "id": "PLO1",
+  "name": "ความรู้พยาบาล/ผดุงครรภ์",
+  "ksa": "K",
+  "domain": "Cognitive Domain (ด้านพุทธิพิสัย)",
+  "full": "ประยุกต์ใช้ความรู้ทางการพยาบาลและการผดุงครรภ์ และบูรณาการศาสตร์ที่เกี่ยวข้องในการให้บริการสุขภาพทุกช่วงวัย ในภาวะปกติและเจ็บป่วย",
+  "ms": [
+   {
+    "l": "I",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 55",
+    "ig": "≥ ร้อยละ 65",
+    "content": "ความรู้พื้นฐานวิทยาศาสตร์การแพทย์ที่จำเป็นต่อวิชาชีพพยาบาล สอบรวบยอดวิชาพื้นฐานวิชาชีพ (จุลชีววิทยา, กายวิภาค, ชีวเคมี, จิตวิทยา)",
+    "method": "สอบรวบยอดวิชาพื้นฐานวิชาชีพ ชั้นปีที่ 1",
+    "tier": "Tier 1 (<55%): พบอาจารย์ที่ปรึกษา + ทบทวนเนื้อหา Tier 2 (55-64%): กิจกรรมเสริมทักษะ"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ความรู้ทางการพยาบาลเบื้องต้นในวิชาชีพ 5 รายวิชา สอบรวบยอดวิชาชีพ ชั้นปีที่ 2 (กฎหมาย, มโนมติ, พยาบาลผู้ใหญ่ 1, พยาบาลเด็ก, พยาบาลผู้สูงอายุ)",
+    "method": "สอบรวบยอดวิชาชีพ ชั้นปีที่ 2",
+    "tier": "Tier 1 (<60%): ทบทวนรายวิชา + ทดสอบซ้ำ Tier 2 (60-69%): ชี้แนะแหล่งเรียนรู้เพิ่มเติม"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ความรู้ทางการพยาบาลระดับกลางใน 5 สาขาหลัก สอบรวบยอดวิชาชีพ ชั้นปีที่ 3 (พยาบาลผู้ใหญ่ 2, ชุมชน, วิจัย, มารดาทารก 1, สุขภาพจิต)",
+    "method": "สอบรวบยอดวิชาชีพ ชั้นปีที่ 3",
+    "tier": "Tier 1 (<60%): แผนพัฒนาเฉพาะบุคคล (IDP) Tier 2 (60-69%): Workshop เสริมทักษะ"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 50 ทุกสาขา",
+    "ig": "≥ ร้อยละ 60",
+    "content": "ความรู้ครบ 8 สาขา ตามมาตรฐานการพยาบาลสากล สอบรวบยอดคณะพยาบาลศาสตร์ สบช. (PBRI Comprehensive Exam 500 ข้อ)",
+    "method": "สอบรวบยอดคณะพยาบาลศาสตร์ สบช. + PBRI Test",
+    "tier": "Tier 1 (<50%): ห้ามสอบขึ้นทะเบียน → ทบทวนและสอบซ้ำ Tier 2 (50-59%): ติวเสริมก่อนสอบขึ้นทะเบียนวิชาชีพ"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80 ของนักศึกษาผ่านเกณฑ์ขั้นต่ำ",
+   "g": "≥ ร้อยละ 85 ของนักศึกษาผ่านเกณฑ์ขั้นต่ำ",
+   "e": "≥ ร้อยละ 90 ผ่านขั้นต่ำ และ ≥ ร้อยละ 50 ผ่านระดับเป้าหมาย"
+  },
+  "direct": "1.  สอบรวบยอด คณะพยาบาลศาสตร์ สถาบันพระบรมราชชนก (100%) : 1) การผดุงครรภ์ (14%) 2) การพยาบาลมารดาและทารก (14%) 3)  การพยาบาลเด็กและวัยรุ่น (14%) 4) การพยาบาลผู้ใหญ่ (14%) 5) การพยาบาลผู้สูงอายุ (7%) 6)  การพยาบาลสุขจิตและจิตเวชศาสตร์ (14%) 7)  การพยาบาลอนามัยชุมชนและการรักษาพยาบาลขั้นต้น (14%) 8) กฎหมายและจรรยาบรรณวิชาชีพฯ (9%)",
+  "directTool": "ข้อสอบรวบยอดคณะพยาบาลศาสตร์ สบช. (Test Blueprint มาตรฐาน สบช.)",
+  "directTime": "สิ้นสุดชั้นปีที่ 4 (มีนาคม – เมษายน)",
+  "directResp": "งานวิชาการและพัฒนาหลักสูตร",
+  "directIndT": "ผ่านการประเมิน ≥ ร้อยละ 50 ทุกสาขา",
+  "directIndG": "ผ่านการประเมิน ≥ ร้อยละ 60",
+  "directRemedy": "• จัดกิจกรรมเสริมความรู้ก่อนสอบรวบยอด (Pre-comp review) • อาจารย์ที่ปรึกษาติดตามนักศึกษาที่ผ่านต่ำกว่าร้อยละ 60 • รายงานผลต่อคณะกรรมการบริหารหลักสูตร",
+  "indirect": "แบบสอบถามประเมินตนเอง (Self-assessment) มาตรวัด Likert 5 ระดับ",
+  "indirectRemedy": "• วิเคราะห์ Radar Plot รายบุคคล • นำผลแจ้งอาจารย์ที่ปรึกษาและผู้บริหารชั้นปี"
+ },
+ {
+  "id": "PLO2",
+  "name": "ปฏิบัติการพยาบาลองค์รวม",
+  "ksa": "S",
+  "domain": "Psychomotor Domain (ด้านทักษะพิสัย)",
+  "full": "ปฏิบัติการพยาบาลและการผดุงครรภ์แบบองค์รวมด้วยหัวใจความเป็นมนุษย์ โดยใช้กระบวนการพยาบาลบนหลักฐานเชิงประจักษ์ คำนึงถึงความปลอดภัย การใช้ยาสมเหตุผล ความหลากหลายทางวัฒนธรรม ภายใต้กฎหมายและจรรยาบรรณวิชาชีพ",
+  "ms": [
+   {
+    "l": "na"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "ทักษะการพยาบาลพื้นฐาน การให้สารน้ำทางหลอดเลือดดำ การประเมินภาวะสุขภาพ การดูแลความสะอาดร่างกาย - ปฏิบัติการพยาบาลขั้นพื้นฐาน (40%) + ปฏิบัติการพยาบาลผู้ใหญ่ฯ 1 (30%) + ปฏิบัติการพยาบาลเด็กฯ 1 (30%)",
+    "method": "ประเมินทักษะการปฏิบัติการพยาบาล ในรายวิชาภาคปฏิบัติ (Selected Assessment)",
+    "tier": "Tier 1 (<65%): ฝึกทักษะซ้ำในห้อง Lab + Simulation Tier 2 (65-74%): เพิ่มชั่วโมงฝึกปฏิบัติ"
+   },
+   {
+    "l": "R",
+    "t": 75,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "ทักษะการพยาบาลผู้ป่วยวิกฤต ผู้ป่วยเรื้อรัง และการพยาบาลเฉพาะสาขา ปฏิบัติการพยาบาลเด็กฯ 2, ผู้สูงอายุ, ผู้ใหญ่ฯ 2 มารดาทารก 1, สุขภาพจิต, ชุมชน",
+    "method": "ประเมินทักษะปฏิบัติในรายวิชาภาคปฏิบัติ 6 วิชา (สาขาละ 1 หัตถการสำคัญ)",
+    "tier": "Tier 1 (<65%): แผนฝึกทักษะเพิ่มเติมแบบมีเป้าหมาย Tier 2 (65-74%): Case-based practice เพิ่มเติม"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 70 ทุกสถานี",
+    "ig": "≥ ร้อยละ 75",
+    "content": "ทักษะปฏิบัติการพยาบาลระดับสมรรถนะสูง ครบทุกสาขาวิชา ตามมาตรฐานวิชาชีพ ปฏิบัติการพยาบาลมารดาทารก 2, ชุมชน+บริหาร รักษาโรคเบื้องต้น, บริหารคุณภาพ + OSCE 5 สาขา",
+    "method": "ประเมินทักษะปฏิบัติรายวิชา + สอบ OSCE 5 สาขา (PLO Comprehensive)",
+    "tier": "Tier 1 (<70%): สอบซ้ำ + ฝึกปฏิบัติภายใต้การนิเทศ Tier 2 (70-74%): Simulation-based practice"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80 ผ่านเกณฑ์ขั้นต่ำทุกสถานี (Station)",
+   "g": "≥ ร้อยละ 85 ผ่านเกณฑ์ขั้นต่ำ",
+   "e": "≥ ร้อยละ 90 ผ่านขั้นต่ำ และ ≥ ร้อยละ 60 ผ่านระดับเป้าหมาย"
+  },
+  "direct": "สอบทักษะปฏิบัติความรู้รวบยอด 5 สาขา (Objective Structured Clinical Examination: OSCE)",
+  "directTool": "โจทย์สถานการณ์ทางคลินิก + แบบประเมินทักษะปฏิบัติการพยาบาล/ผดุงครรภ์",
+  "directTime": "สิ้นสุดชั้นปีที่ 4 (กุมภาพันธ์ – มีนาคม)",
+  "directResp": "อาจารย์ผู้รับผิดชอบหลักสูตรแต่ละสาขา",
+  "directIndT": "ผ่านการประเมิน ≥ ร้อยละ 70 ทุกสถานี (Station)",
+  "directIndG": "ผ่านการประเมิน ≥ ร้อยละ 75",
+  "directRemedy": "• จัดสอบซ้ำสำหรับผู้ไม่ผ่านเกณฑ์ขั้นต่ำ • อาจารย์นิเทศก์วางแผนฝึกทักษะเพิ่มเติมรายบุคคล • บันทึกใน Portfolio ทักษะ",
+  "indirect": "แบบสอบถาม Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot รายบุคคล (3 สี ตามเกณฑ์) • รายงานอาจารย์ที่ปรึกษาและผู้บริหารชั้นปี"
+ },
+ {
+  "id": "PLO3",
+  "name": "คุณธรรม-จริยธรรม",
+  "ksa": "A",
+  "domain": "Affective Domain (ด้านจิตพิสัย)",
+  "full": "แสดงออกถึงพฤติกรรมด้านคุณธรรม จริยธรรม จรรยาบรรณวิชาชีพ และเจตคติที่ดีต่อวิชาชีพพยาบาลและการผดุงครรภ์ตามมาตรฐานสากล",
+  "ms": [
+   {
+    "l": "I",
+    "t": 75,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "อัตลักษณ์บัณฑิต: วินัย, ซื่อสัตย์, เสียสละ จิตสำนึกความเป็นไทยและความเป็นพยาบาล ประเมินอัตลักษณ์บัณฑิต ด้านคุณธรรม (GE 201 เราคือ สบช., GE 209 พลเมืองวิวัฒน์)",
+    "method": "ประเมินอัตลักษณ์บัณฑิตของสถาบัน ชั้นปีที่ 1 (Behavioral Observation + Self-reflection)",
+    "tier": "Tier 1 (<65%): อาจารย์ที่ปรึกษาพบพูดคุย + เขียน Reflection Tier 2 (65-74%): กิจกรรมจิตอาสา / เสริมสร้างอัตลักษณ์"
+   },
+   {
+    "l": "R",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "จริยธรรมและจรรยาบรรณวิชาชีพพยาบาล เจตคติที่ดีต่อวิชาชีพและผู้รับบริการ ประเมินจริยธรรมและจรรยาบรรณวิชาชีพ (กฎหมาย จริยศาสตร์ฯ 40%; ปฏิบัติพื้นฐาน 60%)",
+    "method": "ประเมินพฤติกรรมจริยธรรมวิชาชีพในรายวิชา (Direct Observation + Portfolio)",
+    "tier": "Tier 1 (<65%): สัมภาษณ์เชิงลึก + กรณีศึกษาจริยธรรม Tier 2 (65-74%): กิจกรรมสะท้อนคิดจริยธรรม"
+   },
+   {
+    "l": "R",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "จริยธรรมการวิจัย ความซื่อสัตย์ทางวิชาการ การเคารพสิทธิผู้ป่วย และความเป็นส่วนตัว ประเมินพฤติกรรมจริยธรรมในรายวิชาภาคปฏิบัติ (วิจัย 10%; ปฏิบัติผู้ใหญ่ 2, ผู้สูงอายุ, ชุมชน, สุขภาพจิต)",
+    "method": "ประเมินพฤติกรรมจริยธรรมในรายวิชาภาคปฏิบัติ + ประเมินจริยธรรมการวิจัย",
+    "tier": "Tier 1 (<65%): ปรึกษาอาจารย์ที่ปรึกษา + จรรยาบรรณเพิ่มเติม Tier 2 (65-74%): Case discussion จริยธรรมทางคลินิก"
+   },
+   {
+    "l": "M",
+    "t": 85,
+    "g": 90,
+    "e": 95,
+    "it": "≥ ร้อยละ 70 ทุกรายวิชา",
+    "ig": "≥ ร้อยละ 80",
+    "content": "คุณธรรม จริยธรรม จรรยาบรรณวิชาชีพ ในระดับสมรรถนะสูง พร้อมเป็นบัณฑิต ประเมินพฤติกรรมจริยธรรมในรายวิชาภาคปฏิบัติ (ทุกรายวิชาภาคปฏิบัติชั้นปี 4 ทั้ง 4 วิชา)",
+    "method": "ประเมินพฤติกรรมจริยธรรมครบทุกรายวิชาภาคปฏิบัติ + 360° Behavioral Feedback",
+    "tier": "Tier 1 (<70%): ไม่ได้รับการแนะนำให้สำเร็จการศึกษา Tier 2 (70-79%): แผนพัฒนาเฉพาะบุคคลด้านจริยธรรม"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 85 ของนักศึกษาผ่านเกณฑ์ขั้นต่ำ",
+   "g": "≥ ร้อยละ 90 ผ่านเกณฑ์ขั้นต่ำ",
+   "e": "≥ ร้อยละ 95 ผ่านขั้นต่ำ และ ≥ ร้อยละ 80 ผ่านระดับเป้าหมาย"
+  },
+  "direct": "ประเมินพฤติกรรมด้านคุณธรรม จริยธรรมทางการพยาบาล ในรายวิชาภาคปฏิบัติทุกรายวิชา (Comprehensive)",
+  "directTool": "แบบประเมินพฤติกรรมด้านคุณธรรม จริยธรรมทางการพยาบาล (Holistic Behavioral Assessment Rubric)",
+  "directTime": "ตลอดรายวิชาภาคปฏิบัติ (ทุกชั้นปี)",
+  "directResp": "อาจารย์ผู้รับผิดชอบรายวิชา",
+  "directIndT": "ผ่านการประเมิน ≥ ร้อยละ 65 ในทุกรายวิชาภาคปฏิบัติ",
+  "directIndG": "ผ่านการประเมิน ≥ ร้อยละ 75",
+  "directRemedy": "• ประชุมกับนักศึกษาเพื่อทำความเข้าใจมาตรฐานจริยธรรม • บันทึกข้อสังเกตใน Reflective Journal • แจ้งคณะกรรมการกิจการนักศึกษากรณีมีพฤติกรรมร้ายแรง",
+  "indirect": "แบบสอบถาม Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot รายบุคคล • รายงานผู้บริหารชั้นปีและอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO4",
+  "name": "การคิดขั้นสูง",
+  "ksa": "K+S",
+  "domain": "Cognitive Domain (High Order Thinking)",
+  "full": "แสดงออกถึงทักษะการคิดขั้นสูงในการตัดสินใจแก้ปัญหา การคิดอย่างมีวิจารณญาณและสร้างสรรค์ (Generic skill)",
+  "ms": [
+   {
+    "l": "I",
+    "t": 65,
+    "g": 70,
+    "e": 75,
+    "it": "≥ ร้อยละ 55",
+    "ig": "≥ ร้อยละ 65",
+    "content": "การคิดวิเคราะห์เชิงระบบ การแก้ปัญหาเชิงสร้างสรรค์ GE 301 ผู้ประกอบการในยุคดิจิทัล (50%) + GE 302 การรู้ดิจิทัล (50%)",
+    "method": "ประเมินกระบวนการคิด ชั้นปีที่ 1",
+    "tier": "Tier 1: กิจกรรมเสริมการคิดเชิงระบบ"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การคิดวิเคราะห์ทางคลินิก การตัดสินใจเชิงวิชาชีพ การพยาบาลผู้ใหญ่ฯ 1 (40%) + การพยาบาลเด็กฯ (30%) + การพยาบาลผู้สูงอายุ (30%)",
+    "method": "ประเมินกระบวนการคิดทางคลินิก ชั้นปีที่ 2",
+    "tier": "Tier 1: PBL sessions เพิ่มเติม Tier 2: Case discussion กลุ่มย่อย"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การคิดวิพากษ์ การสังเคราะห์หลักฐาน การแก้ปัญหาซับซ้อน วิจัยและนวัตกรรมฯ (20%) + ปฏิบัติการพยาบาลผู้ใหญ่ฯ 2 (40%) + ปฏิบัติการพยาบาลสุขภาพจิต (40%)",
+    "method": "ประเมินกระบวนการคิดชั้นปีที่ 3",
+    "tier": "Tier 1: Evidence-Based Practice workshop Tier 2: Critical appraisal เพิ่มเติม"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การคิดเชิงกลยุทธ์ การประเมินสถานการณ์ซับซ้อน การตัดสินใจในระดับผู้บริหาร การบริหารและการจัดการคุณภาพฯ (50%) + ปฏิบัติการบริหารและจัดการคุณภาพฯ (50%)",
+    "method": "ประเมินกระบวนการคิดชั้นปีที่ 4 (PLO Comprehensive)",
+    "tier": "Tier 1: Mentoring แบบเข้มข้น Tier 2: Simulation scenarios เพิ่มเติม"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "ประเมินกระบวนการคิด นศ.ชั้นปีที่ 4 ในรายวิชาการบริหารและการจัดการคุณภาพฯ (50%) และปฏิบัติการบริหารฯ (50%)",
+  "directTool": "แบบประเมินทักษะการคิด (Clinical Reasoning Rubric) + กรณีศึกษาคลินิก",
+  "directTime": "สิ้นสุดชั้นปีที่ 4",
+  "directResp": "อาจารย์ผู้รับผิดชอบรายวิชา",
+  "directIndT": "≥ ร้อยละ 65",
+  "directIndG": "≥ ร้อยละ 75",
+  "directRemedy": "• Workshop Clinical Reasoning • Case-based Learning เพิ่มเติมสำหรับผู้ต่ำกว่าเกณฑ์",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO5",
+  "name": "วิจัยและนวัตกรรม",
+  "ksa": "K+S",
+  "domain": "Cognitive & Psychomotor Domain",
+  "full": "ประยุกต์ความรู้ระเบียบวิธีวิจัยในการปฏิบัติการพยาบาลและพัฒนานวัตกรรมทางการพยาบาล โดยบูรณาการแนวคิดการพยาบาลเชิงประจักษ์",
+  "ms": [
+   {
+    "l": "na"
+   },
+   {
+    "l": "I",
+    "t": 65,
+    "g": 70,
+    "e": 75,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การนำผลการวิจัย/หลักฐานเชิงประจักษ์ไปใช้ ในการปฏิบัติการพยาบาลเบื้องต้น ปฏิบัติการพยาบาลผู้ใหญ่ฯ 1 (50%) + ปฏิบัติการพยาบาลเด็กฯ 1 (50%)",
+    "method": "ประเมินการนำวิจัย/นวัตกรรมไปประยุกต์ใช้",
+    "tier": "Tier 1: Workshop EBP เบื้องต้น"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การออกแบบวิจัย/นวัตกรรม วิเคราะห์ข้อมูล รายงานผลและนำเสนอ วิจัยและนวัตกรรมทางการพยาบาล (50%) + ปฏิบัติการพยาบาลสุขภาพจิต (50%)",
+    "method": "การนำวิจัย/นวัตกรรมไปประยุกต์ใช้จริง ในสถานการณ์คลินิกที่ซับซ้อน ปฏิบัติการพยาบาลมารดา ทารก 2 (50%) + ปฏิบัติการพยาบาลชุมชน+บริหาร (50%)",
+    "tier": "Tier 1: อาจารย์ที่ปรึกษาวิจัย 1:1 Tier 2: Peer review เพิ่มเติม"
+   },
+   {
+    "l": "R",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การนำวิจัย/นวัตกรรมไปประยุกต์ใช้จริง ในสถานการณ์คลินิกที่ซับซ้อน ปฏิบัติการพยาบาลมารดา ทารก 2 (50%) + ปฏิบัติการพยาบาลชุมชน+บริหาร (50%)",
+    "method": "ประเมินการนำวิจัย/นวัตกรรมไปประยุกต์ใช้",
+    "tier": "Tier 1: Journal club เพิ่มเติม Tier 2: Evidence-based case review"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "รายงานวิจัย/นวัตกรรม ในวิชาวิจัยและนวัตกรรมฯ + ประเมินการนำวิจัย/นวัตกรรมไปประยุกต์ใช้ในปฏิบัติการพยาบาลมารดา ทารก 2",
+  "directTool": "แบบประเมินรายงานวิจัย/นวัตกรรม + แบบประเมินการนำวิจัยไปประยุกต์ใช้",
+  "directTime": "สิ้นสุดวิชาวิจัยฯ (ชั้นปีที่ 3) + สิ้นสุดปฏิบัติมารดาทารก 2 (ชั้นปีที่ 4)",
+  "directResp": "อาจารย์ผู้สอนประจำกลุ่ม",
+  "directIndT": "≥ ร้อยละ 60",
+  "directIndG": "≥ ร้อยละ 70",
+  "directRemedy": "• อาจารย์ที่ปรึกษาวิจัยให้คำแนะนำเฉพาะราย • Workshop การเขียนรายงานวิจัย",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO6",
+  "name": "ภาวะผู้นำ-บริหาร",
+  "ksa": "S+A",
+  "domain": "Psychomotor & Affective Domain",
+  "full": "แสดงออกถึงการมีภาวะผู้นำและสามารถบริหารจัดการสุขภาวะชุมชน",
+  "ms": [
+   {
+    "l": "I",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ภาวะผู้นำระดับสูง การพัฒนาคุณภาพ การบริหารทรัพยากร การจัดการความเสี่ยง ปฏิบัติการบริหารและจัดการคุณภาพฯ (60%) + ปฏิบัติการพยาบาลชุมชน+บริหาร (40%)",
+    "method": "ประเมินภาวะผู้นำเบื้องต้น ชั้นปีที่ 1",
+    "tier": "Tier 1: กิจกรรมพัฒนาทักษะผู้นำ"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การวางแผนและจัดการทีมการพยาบาล การตัดสินใจด้านการบริหาร กฎหมาย จริยศาสตร์ฯ (30%) + ปฏิบัติการพยาบาลชุมชน (สุขภาพชุมชน 70%)",
+    "method": "ประเมินภาวะผู้นำและการบริหาร ชั้นปีที่ 2",
+    "tier": "Tier 1: Workshop ทักษะการสื่อสารและผู้นำ"
+   },
+   {
+    "l": "R",
+    "t": 75,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การนำทีม การมอบหมายงาน การบริหารทรัพยากร ในหน่วยบริการพยาบาล ปฏิบัติการพยาบาลผู้ใหญ่ฯ 2 (50%) + ปฏิบัติการพยาบาลมารดาทารก 1 (50%)",
+    "method": "ประเมินภาวะผู้นำและการจัดการ ชั้นปีที่ 3",
+    "tier": "Tier 1: Case study การบริหารจัดการ Tier 2: Simulation การนำทีม"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "ภาวะผู้นำระดับสูง การพัฒนาคุณภาพ การบริหารทรัพยากร การจัดการความเสี่ยง ปฏิบัติการบริหารและจัดการคุณภาพฯ (60%) + ปฏิบัติการพยาบาลชุมชน+บริหาร (40%)",
+    "method": "ประเมินภาวะผู้นำและการบริหาร PLO Comprehensive",
+    "tier": "Tier 1: Leadership mentoring program Tier 2: Management simulation"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "ประเมินภาวะผู้นำและการบริหารจัดการ ในรายวิชาปฏิบัติการบริหารและจัดการคุณภาพฯ (ปีที่ 4)",
+  "directTool": "แบบประเมินภาวะผู้นำ + แบบประเมินความสามารถในการจัดการสุขภาพ",
+  "directTime": "สิ้นสุดชั้นปีที่ 4",
+  "directResp": "อาจารย์นิเทศก์ภาคปฏิบัติ",
+  "directIndT": "≥ ร้อยละ 65",
+  "directIndG": "≥ ร้อยละ 75",
+  "directRemedy": "• Leadership coaching รายบุคคล • Role model จากรุ่นพี่ที่มีผลงานเด่น",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO7",
+  "name": "ภาษาสื่อสาร",
+  "ksa": "S",
+  "domain": "Psychomotor Domain (ทักษะการสื่อสาร)",
+  "full": "ใช้ภาษาในการสื่อสารได้อย่างเหมาะสมและเป็นสากล (CEFR B1+)",
+  "ms": [
+   {
+    "l": "I",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 55",
+    "ig": "≥ ร้อยละ 65",
+    "content": "ทักษะภาษาไทยเชิงวิชาการ และภาษาอังกฤษพื้นฐาน การฟัง พูด อ่าน เขียนเพื่อการสื่อสาร GE 101 ภาษาไทยเชิงวิชาการ (50%) + GE 102 ภาษาอังกฤษเพื่อการสื่อสาร (50%)",
+    "method": "ประเมินการใช้ภาษาเชิงวิชาการ ชั้นปีที่ 1",
+    "tier": "Tier 1: ติวเตอร์ภาษา Tier 2: กิจกรรม English camp"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ภาษาอังกฤษเชิงวิชาการและวิชาชีพพยาบาล การอ่านตำราและเอกสารวิชาการภาษาอังกฤษ GE 103 ภาษาอังกฤษเชิงวิชาการ (50%) + GE 104 ภาษาอังกฤษเพื่อการอ่านและเขียน (50%)",
+    "method": "ประเมินการใช้ภาษาอังกฤษเชิงวิชาการ",
+    "tier": "Tier 1: English conversation club Tier 2: Online English learning platform"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ภาษาอังกฤษในบริบทวิชาชีพ การสื่อสารกับผู้รับบริการและทีมสุขภาพ การพยาบาลสุขภาพจิตฯ (40%) อ่าน-เขียน + ปฏิบัติการพยาบาลสุขภาพชุมชน (60%) ฟัง-พูด",
+    "method": "ประเมินการใช้ภาษาในบริบทวิชาชีพ ชั้นปีที่ 3",
+    "tier": "Tier 1: Intensive English tutoring Tier 2: Clinical English practice"
+   },
+   {
+    "l": "M",
+    "t": 100,
+    "g": 80,
+    "e": 5,
+    "it": "≥ ร้อยละ 65 + CEFR B1",
+    "ig": "≥ ร้อยละ 70 + CEFR B1+",
+    "content": "ภาษาอังกฤษระดับก้าวหน้า การสื่อสารระดับสากล ทักษะภาษาครบ 4 ด้าน ระดับ CEFR B1+ GE 105 ภาษาอังกฤษก้าวหน้า (40%) + ปฏิบัติการบริหารฯ (30%) + สอบ CEFR B1+ (30%)",
+    "method": "ประเมินการใช้ภาษา ชั้นปีที่ 4 + สอบ CEFR",
+    "tier": "Tier 1 (ไม่ผ่าน B1): ลงทะเบียนซ้ำ + ติวเตอร์ Tier 2 (B1 แต่ต่ำกว่า B1+): Online CEFR prep",
+    "sp": true
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 100 ผ่าน CEFR B1",
+   "g": "≥ ร้อยละ 80 ผ่าน CEFR B1+",
+   "e": "≥ ร้อยละ 5 ผ่าน CEFR B2+"
+  },
+  "direct": "1. สอบภาษาอังกฤษ CEFR B1+ (ก่อนสำเร็จการศึกษา) 2. สอบรวบยอดภาษาอังกฤษ (PBRI Test) ตลอด 4 ปี",
+  "directTool": "ข้อสอบ CEFR B1 (สบช.) / PBRI English Test + แบบประเมินการใช้ภาษาเชิงวิชาชีพ",
+  "directTime": "สิ้นสุดชั้นปีที่ 4 (ก่อนสำเร็จการศึกษา)",
+  "directResp": "งานทะเบียน / งานวิชาการฯ",
+  "directIndT": "คะแนน CEFR ≥ B1 (≥ 41 คะแนน)",
+  "directIndG": "คะแนน CEFR ≥ B1+ (≥ 50 คะแนน)",
+  "directRemedy": "• ติวเตอร์ภาษาอังกฤษรายบุคคลสำหรับผู้ไม่ผ่าน • English Camp + ห้องสนทนาภาษาอังกฤษ",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• รายงาน CEFR Dashboard รายบุคคล"
+ },
+ {
+  "id": "PLO8",
+  "name": "เทคโนโลยีดิจิทัล",
+  "ksa": "S",
+  "domain": "Psychomotor Domain (ทักษะเทคโนโลยีดิจิทัล)",
+  "full": "ใช้สื่อสารสนเทศและเทคโนโลยีดิจิทัลที่เหมาะสมในการปฏิบัติการพยาบาล การจัดการข้อมูลสุขภาพ และการสื่อสารวิชาชีพได้อย่างมีประสิทธิภาพ",
+  "ms": [
+   {
+    "l": "I",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 55",
+    "ig": "≥ ร้อยละ 65",
+    "content": "ทักษะดิจิทัลพื้นฐาน การใช้เทคโนโลยีสารสนเทศ การรู้เท่าทันสื่อ ความปลอดภัยในโลกดิจิทัล GE 302 การรู้ดิจิทัล (100%) [รายวิชาใหม่ที่เพิ่มเติมตามข้อเสนอแนะ AUN-QA]",
+    "method": "ประเมินทักษะดิจิทัลเบื้องต้น ชั้นปีที่ 1",
+    "tier": "Tier 1: e-Learning เสริมทักษะดิจิทัลพื้นฐาน"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การใช้ระบบข้อมูลสุขภาพ (HIS) เบื้องต้น การสืบค้นฐานข้อมูลทางการพยาบาล ปฏิบัติการพยาบาลผู้ใหญ่ฯ 1 (50%) + ปฏิบัติการพยาบาลเด็กฯ 1 (50%) [เพิ่มการประเมินทักษะดิจิทัล]",
+    "method": "ประเมินการใช้เทคโนโลยีในการปฏิบัติการพยาบาล",
+    "tier": "Tier 1: Workshop การใช้ฐานข้อมูลการพยาบาล"
+   },
+   {
+    "l": "R",
+    "t": 75,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การใช้เทคโนโลยีในการวิจัยและนวัตกรรม การจัดการข้อมูลสุขภาพขั้นสูง วิจัยและนวัตกรรมทางการพยาบาล (50%) + ปฏิบัติการพยาบาลเด็กฯ 2 (25%) + ปฏิบัติการพยาบาลสุขภาพจิต (25%)",
+    "method": "ประเมินการใช้เทคโนโลยีในวิจัย/นวัตกรรม",
+    "tier": "Tier 1: Workshop การใช้โปรแกรมวิเคราะห์ข้อมูล"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การใช้เทคโนโลยีดิจิทัลในการบริหารจัดการสุขภาพ ระดับหน่วยงาน ระดับสมรรถนะสูง ปฏิบัติการบริหารและจัดการคุณภาพฯ (60%) + ปฏิบัติมารดาทารก 2 (20%) + ปฏิบัติชุมชน+บริหาร (20%)",
+    "method": "ประเมินการใช้สื่อสารสนเทศฯ PLO Comprehensive",
+    "tier": "Tier 1: Digital skills bootcamp Tier 2: Advanced HIS training"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "ประเมินการใช้สื่อสารสนเทศและเทคโนโลยีดิจิทัล ในรายวิชาปฏิบัติการบริหารฯ (ชั้นปีที่ 4)",
+  "directTool": "แบบประเมินการใช้สื่อสารสนเทศและเทคโนโลยีดิจิทัล ทางการพยาบาล (Digital Competency Rubric)",
+  "directTime": "สิ้นสุดชั้นปีที่ 4",
+  "directResp": "อาจารย์นิเทศก์ภาคปฏิบัติ",
+  "directIndT": "≥ ร้อยละ 65",
+  "directIndG": "≥ ร้อยละ 75",
+  "directRemedy": "• Workshop Digital Literacy เพิ่มเติม • e-Learning resources สำหรับผู้ต่ำกว่าเกณฑ์",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO9",
+  "name": "ทักษะชีวิต-พอเพียง",
+  "ksa": "A",
+  "domain": "Affective Domain (ด้านจิตพิสัย – ทักษะชีวิต)",
+  "full": "แสดงออกถึงการมีทักษะชีวิต โดยยึดหลักปรัชญาเศรษฐกิจพอเพียง และการดูแลสุขภาวะตนเองอย่างต่อเนื่อง",
+  "ms": [
+   {
+    "l": "I",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "ทักษะชีวิต การปรับตัว การดูแลสุขภาวะตนเอง หลักปรัชญาเศรษฐกิจพอเพียงเบื้องต้น GE 201 เราคือ สบช. (50%) + จิตวิทยาพัฒนาการและกระบวนการคิด (50%)",
+    "method": "ประเมินการนำปรัชญาพอเพียงไปใช้ ชั้นปีที่ 1",
+    "tier": "Tier 1: กิจกรรมส่งเสริมสุขภาวะ"
+   },
+   {
+    "l": "R",
+    "t": 75,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การนำหลักพอเพียงสู่การดูแลผู้รับบริการ ทักษะการปรับตัวในสถานการณ์จริง ปฏิบัติการพยาบาลขั้นพื้นฐาน (100%)",
+    "method": "ประเมินการนำปรัชญาพอเพียงไปใช้ในการปฏิบัติ ชั้นปีที่ 2",
+    "tier": "Tier 1: Reflection journal + กิจกรรมจิตอาสา"
+   },
+   {
+    "l": "R",
+    "t": 75,
+    "g": 80,
+    "e": 85,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การนำหลักพอเพียงสู่การดูแลสุขภาพชุมชน ทักษะจิตใจและการดูแลตนเอง ปฏิบัติการพยาบาลสุขภาพชุมชน (50%) + ปฏิบัติการพยาบาลสุขภาพจิต (50%)",
+    "method": "ประเมินการนำปรัชญาพอเพียงไปใช้ ชั้นปีที่ 3",
+    "tier": "Tier 1: กิจกรรมสุขภาวะชุมชนภาคสนาม"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "ทักษะชีวิตระดับสูง การพึ่งตนเองทางวิชาชีพ การนำหลักพอเพียงสู่การพัฒนาระบบสุขภาพ ปฏิบัติการพยาบาลชุมชน+บริหาร (50%) + ปฏิบัติการบริหารและจัดการคุณภาพฯ (50%)",
+    "method": "ประเมินทักษะชีวิต PLO Comprehensive",
+    "tier": "Tier 1: ปรึกษาอาจารย์ที่ปรึกษาด้านสุขภาวะ Tier 2: Self-care program"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "ประเมินการนำปรัชญาเศรษฐกิจพอเพียงไปใช้ ในรายวิชาปฏิบัติการพยาบาลสุขภาพจิตฯ + ชุมชน",
+  "directTool": "แบบประเมินทักษะชีวิต + แบบประเมินการนำปรัชญาเศรษฐกิจพอเพียงไปใช้",
+  "directTime": "สิ้นสุดชั้นปีที่ 4",
+  "directResp": "อาจารย์นิเทศก์ภาคปฏิบัติ",
+  "directIndT": "≥ ร้อยละ 65",
+  "directIndG": "≥ ร้อยละ 75",
+  "directRemedy": "• กิจกรรมส่งเสริมสุขภาวะและเศรษฐกิจพอเพียง • Reflective portfolio ทักษะชีวิต",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ },
+ {
+  "id": "PLO10",
+  "name": "ผู้ประกอบการสุขภาพ",
+  "ksa": "K+S",
+  "domain": "Cognitive & Psychomotor Domain",
+  "full": "ประยุกต์แนวคิดการเป็นผู้ประกอบการด้านสุขภาพในการปฏิบัติงาน เพื่อพัฒนาและสร้างนวัตกรรมบริการสุขภาพในชุมชน",
+  "ms": [
+   {
+    "l": "I",
+    "t": 65,
+    "g": 70,
+    "e": 75,
+    "it": "≥ ร้อยละ 55",
+    "ig": "≥ ร้อยละ 65",
+    "content": "แนวคิดผู้ประกอบการ ความคิดสร้างสรรค์ นวัตกรรมเชิงสังคม GE 301 ผู้ประกอบการในยุคดิจิทัล (100%)",
+    "method": "ประเมินแนวคิดผู้ประกอบการ ชั้นปีที่ 1",
+    "tier": "Tier 1: กิจกรรมส่งเสริมความคิดสร้างสรรค์"
+   },
+   {
+    "l": "R",
+    "t": 65,
+    "g": 70,
+    "e": 75,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การประยุกต์แนวคิดนวัตกรรมในการดูแลผู้ป่วย การพัฒนาแนวทางปฏิบัติใหม่ การพยาบาลผู้ใหญ่ฯ 1 (50%) + การพยาบาลเด็กฯ (50%) [เพิ่มการประเมินแนวคิดผู้ประกอบการ]",
+    "method": "ประเมินแนวคิดผู้ประกอบการ ชั้นปีที่ 2",
+    "tier": "Tier 1: Design Thinking workshop เบื้องต้น"
+   },
+   {
+    "l": "R",
+    "t": 70,
+    "g": 75,
+    "e": 80,
+    "it": "≥ ร้อยละ 60",
+    "ig": "≥ ร้อยละ 70",
+    "content": "การพัฒนานวัตกรรมสุขภาพชุมชน การวางแผนโครงการสุขภาพ ปฏิบัติการพยาบาลสุขภาพชุมชน (50%) + ปฏิบัติการพยาบาลชุมชน (50%)",
+    "method": "ประเมินโครงการ/แผนนวัตกรรมสุขภาพ ชั้นปีที่ 3",
+    "tier": "Tier 1: Community Health Innovation workshop"
+   },
+   {
+    "l": "M",
+    "t": 80,
+    "g": 85,
+    "e": 90,
+    "it": "≥ ร้อยละ 65",
+    "ig": "≥ ร้อยละ 75",
+    "content": "การพัฒนาโครงการ/นวัตกรรมบริการสุขภาพ ระดับหน่วยงาน Business Model Canvas สุขภาพ ปฏิบัติการพยาบาลชุมชน+บริหาร (50%) + ปฏิบัติการบริหารและจัดการคุณภาพฯ (50%)",
+    "method": "ประเมินโครงการ/นวัตกรรม PLO Comprehensive + Startup Health Pitch",
+    "tier": "Tier 1: Innovation mentoring Tier 2: Incubator program เสริม"
+   }
+  ],
+  "prog": {
+   "t": "≥ ร้อยละ 80",
+   "g": "≥ ร้อยละ 85",
+   "e": "≥ ร้อยละ 90"
+  },
+  "direct": "ประเมินโครงการ/แผนการพัฒนานวัตกรรม บริการสุขภาพในรายวิชาปฏิบัติการพยาบาลชุมชน+บริหาร",
+  "directTool": "แบบวัดแนวคิดการเป็นผู้ประกอบการด้านสุขภาพ + แบบประเมินโครงการ/นวัตกรรมบริการสุขภาพ",
+  "directTime": "สิ้นสุดชั้นปีที่ 4",
+  "directResp": "อาจารย์ผู้รับผิดชอบรายวิชา",
+  "directIndT": "≥ ร้อยละ 65",
+  "directIndG": "≥ ร้อยละ 75",
+  "directRemedy": "• Workshop Design Thinking + Business Model Canvas • Startup Pitch coaching สำหรับผู้มีศักยภาพสูง",
+  "indirect": "Self-assessment Likert 5 ระดับ",
+  "indirectRemedy": "• Radar Plot + รายงานอาจารย์ที่ปรึกษา"
+ }
+];
+const TIERS=[
+ {n:'Tier 1',e:'🔴',name:'เร่งด่วน',col:'var(--tier1)',cond:'ไม่ผ่านเกณฑ์ขั้นต่ำ (Threshold) ใน YLO หรือมีสัญญาณเสี่ยงต่อการออกกลางคัน',
+  m:['พบอาจารย์ที่ปรึกษาทันที','จัดทำแผนพัฒนาเฉพาะบุคคล (IDP)','ติวเสริม / ฝึกปฏิบัติเพิ่มเติม','สอบซ้ำ (Remediation Assessment)','รายงานผู้บริหารชั้นปีทุก 2 สัปดาห์'],
+  who:'อาจารย์ที่ปรึกษา + ผู้บริหารชั้นปี + อาจารย์ผู้สอน',time:'ภายใน 2 สัปดาห์หลังประกาศผล',exp:'ผ่านเกณฑ์ขั้นต่ำภายใน 1 ภาคเรียน'},
+ {n:'Tier 2',e:'🟡',name:'พัฒนา',col:'var(--tier2)',cond:'ผ่านขั้นต่ำแต่ต่ำกว่าระดับเป้าหมาย (Threshold ≤ คะแนน < Target)',
+  m:['แนะนำแหล่งเรียนรู้เพิ่มเติม','จัด Workshop / กิจกรรมเสริม','Peer-assisted learning','ติดตามความก้าวหน้าทุกเดือน','บันทึกใน Learning Portfolio'],
+  who:'อาจารย์ที่ปรึกษา + อาจารย์ผู้สอน',time:'ตลอดภาคการศึกษา',exp:'บรรลุระดับเป้าหมายภายใน 1 ปีการศึกษา'},
+ {n:'Tier 3',e:'🟢',name:'ส่งเสริม',col:'var(--tier3)',cond:'ผ่านระดับเป้าหมายและมีศักยภาพสูง (คะแนน ≥ Target)',
+  m:['โครงการพัฒนาศักยภาพพิเศษ','การนำเสนอผลงาน / ประกวด','แลกเปลี่ยนกับสถาบันอื่น / ต่างประเทศ','Role model สำหรับรุ่นน้อง','บันทึกเป็น Best Practice'],
+  who:'คกก.บริหารหลักสูตร + ผู้เชี่ยวชาญ',time:'ตลอดปีการศึกษา',exp:'บรรลุระดับท้าทาย (Excellence)'},
+];
+
+const CYCLE=[
+ {w:'สัปดาห์ที่ 3–4 (ต้นภาค)',t:'รอบที่ 1 — ระบุนักศึกษาเสี่ยง',act:'ตรวจสอบ YLO ปีก่อน · ระบุนักศึกษาเสี่ยง · วางแผนป้องกัน',who:'คกก.บริหารหลักสูตร + ผู้บริหารชั้นปี',mech:'ประชุมคณะกรรมการครั้งที่ 1',out:'บัญชีรายชื่อนักศึกษาเสี่ยง'},
+ {w:'สัปดาห์ที่ 8–9 (กลางภาค)',t:'รอบที่ 2 — ทบทวนกลางภาค',act:'ตรวจสอบผล Mid-term · ปรับแผน Tier 1/2 · บันทึกความก้าวหน้า',who:'อาจารย์ที่ปรึกษา + อาจารย์ผู้สอน',mech:'Mid-term review',out:'รายงานความก้าวหน้ารายบุคคล'},
+ {w:'สัปดาห์ที่ 15–16 (ปลายภาค)',t:'รอบที่ 3 — ประเมิน YLO',act:'ประเมิน YLO ประจำชั้นปี · สรุปและรายงาน · วางแผนปีถัดไป',who:'คกก.บริหารหลักสูตร',mech:'ประชุมคณะกรรมการครั้งที่ 2',out:'รายงาน YLO Achievement + แผนพัฒนา'},
+ {w:'มิถุนายน–กรกฎาคม (สิ้นปีการศึกษา)',t:'รอบที่ 4 — CQI ประจำปี',act:'วิเคราะห์ผล PLO รายรุ่น · Radar Plot รายบุคคล · CQI ปรับปรุงแผน',who:'คณะกรรมการพัฒนาหลักสูตร',mech:'ประชุมทบทวนประจำปี',out:'รายงาน PLO Achievement + แผน CQI'},
+];
+
+/* ===== RENDER LOGIC ===== */
+const DOMAIN={K:{c:'var(--k)',n:'Cognitive · พุทธิพิสัย'},S:{c:'var(--s)',n:'Psychomotor · ทักษะพิสัย'},A:{c:'var(--a)',n:'Affective · จิตพิสัย'}};
+function ksaColor(k){if(k.includes('K')&&k.includes('S'))return'var(--primary)';if(k==='K')return'var(--k)';if(k==='S')return'var(--s)';if(k==='A')return'var(--a)';if(k==='S+A')return'#7c3aed';return'var(--primary)';}
+const $=s=>document.querySelector(s);
+const YR=['ปีที่ 1','ปีที่ 2','ปีที่ 3','ปีที่ 4'];
+const LVLNAME={I:'Introduced',R:'Reinforced',M:'Mastery'};
+function lvlColor(l){return l==='I'?'#2563eb':l==='R'?'#0891b2':l==='M'?'#1e3a8a':'#b6c0c4';}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// split tier text into Tier1 / Tier2 parts
+function parseTier(t){
+  if(!t)return[];
+  const parts=[];
+  const re=/(Tier\s*[12][^]*?)(?=Tier\s*[12]|$)/g; let m;
+  while((m=re.exec(t))!==null){parts.push(m[1].trim());}
+  return parts.length?parts:[t];
+}
+
+// PLO cards
+function renderGrid(){
+  $('#ploGrid').innerHTML=PLOS.map(p=>{
+    const levels=p.ms.map((m,i)=>`<span class="lev-${m.l}"><b class="lev ${m.l}">${m.l==='na'?'–':m.l}</b>${['ป1','ป2','ป3','ป4'][i]}</span>`).join('');
+    return `
+    <div class="plo-card" style="--accent:${ksaColor(p.ksa)}" onclick="openDetail('${p.id}')">
+      <div class="plo-head">
+        <span class="plo-id">${p.id}</span>
+        <span class="ksa" style="background:${ksaColor(p.ksa)}">${p.ksa}</span>
+      </div>
+      <div class="plo-name">${esc(p.name)}</div>
+      <div class="plo-desc">${esc(p.full)}</div>
+      <div class="plo-levels">${levels}</div>
+      <div class="open-hint">คลิกเพื่อดูรายละเอียด →</div>
+    </div>`;}).join('');
+}
+
+// Domain bars
+function renderDom(){
+  const buckets={K:0,S:0,A:0};
+  PLOS.forEach(p=>{p.ksa.split('+').forEach(k=>buckets[k]++)});
+  const max=Math.max(...Object.values(buckets));
+  $('#domWrap').innerHTML=Object.entries(buckets).map(([k,v])=>`
+    <div class="dom-row">
+      <div class="dom-lbl">${DOMAIN[k].n}</div>
+      <div class="bar"><i style="width:0;background:${DOMAIN[k].c}" data-w="${v/max*100}"></i><span>${v} PLO</span></div>
+    </div>`).join('');
+  setTimeout(()=>document.querySelectorAll('#domWrap .bar i').forEach(b=>b.style.width=b.dataset.w+'%'),100);
+}
+
+// Heatmap with full 3-level YLO + level label
+function renderHeat(){
+  const yhdr=[['ปีที่ 1','I'],['ปีที่ 2','R'],['ปีที่ 3','R'],['ปีที่ 4','M']];
+  let html=`
+    <tr>
+      <th class="rowh" rowspan="2">PLO / ผลลัพธ์</th>
+      <th class="grp grp-ylo" colspan="4">YLOs · เกณฑ์กลุ่มรายชั้นปี (①②③)</th>
+      <th class="grp grp-plo" colspan="8">PLOs · ระดับหลักสูตร (PLO-Level)</th>
+    </tr>
+    <tr>
+      ${yhdr.map(h=>`<th>${h[0]}<small>เกณฑ์กลุ่ม ①②③</small></th>`).join('')}
+      <th>วิธีวัด<small>PLO-Level</small></th>
+      <th>Direct Assessment<small>(PLO-Level)</small></th>
+      <th>Indirect<small>Assessment</small></th>
+      <th>① ขั้นต่ำ<small>Threshold</small></th>
+      <th>② เป้าหมาย<small>Target</small></th>
+      <th>③ ท้าทาย<small>Excellence</small></th>
+      <th>Domain</th><th>KSA</th>
+    </tr>`;
+  PLOS.forEach(p=>{
+    html+=`<tr><td class="ploname" onclick="openDetail('${p.id}')"><b>${p.id}</b><br>${esc(p.name)}</td>`;
+    p.ms.forEach(m=>{
+      if(m.l==='na'){html+=`<td><div class="na-box">– ไม่มี</div></td>`;return;}
+      const tip=m.sp?' title="① CEFR B1 · ② CEFR B1+ · ③ CEFR B2+"':'';
+      html+=`<td${tip}><div class="cell">
+        <div class="ylo-lvl" style="color:${lvlColor(m.l)};background:#f0f4f8">${m.l} · ${LVLNAME[m.l]||''}</div>
+        <div class="crit-row r-t"><span>①</span><b>${m.t}%</b></div>
+        <div class="crit-row r-g"><span>②</span><b>${m.g}%</b></div>
+        <div class="crit-row r-e"><span>③</span><b>${m.e}%</b></div>
+      </div></td>`;
+    });
+    html+=`<td><div class="txtcell strong">Direct +<br>Indirect</div></td>`;
+    html+=`<td><div class="txtcell">${esc(p.direct)}</div></td>`;
+    html+=`<td><div class="txtcell">${esc(p.indirect)}</div></td>`;
+    html+=`<td><div class="pbox t">${esc(p.prog.t)}</div></td>`;
+    html+=`<td><div class="pbox g">${esc(p.prog.g)}</div></td>`;
+    html+=`<td><div class="pbox e">${esc(p.prog.e)}</div></td>`;
+    html+=`<td><div class="txtcell dom">${esc(p.domain)}</div></td>`;
+    html+=`<td><span class="ksa-cell" style="background:${ksaColor(p.ksa)}">${p.ksa}</span></td></tr>`;
+  });
+  $('#heatmap').innerHTML=html;
+}
+
+// Detail drill-down
+function openDetail(id){
+  const p=PLOS.find(x=>x.id===id);const ac=ksaColor(p.ksa);
+  // Milestone steps (clickable, show all 3 levels)
+  const msHtml=p.ms.map((m,i)=>{
+    if(m.l==='na')return`<div class="ms-step na"><div class="yr">${YR[i]}</div><div class="lev na">–</div><div style="font-size:11px;color:#b6c0c4;margin-top:4px">ไม่มีการประเมิน</div></div>`;
+    return`<div class="ms-step" onclick="showYlo('${id}',${i})">
+      <div class="yr">${YR[i]}</div>
+      <div class="lev ${m.l}">${m.l}</div>
+      <div style="font-size:10px;color:var(--muted)">${LVLNAME[m.l]||''}</div>
+      <div class="ms-3">
+        <div class="mrow r-t"><span>①</span><b>${m.t}${m.sp?'%':'%'}</b></div>
+        <div class="mrow r-g"><span>②</span><b>${m.g}%</b></div>
+        <div class="mrow r-e"><span>③</span><b>${m.e}%</b></div>
+      </div>
+      <div class="ms-tap">▾ คลิกดูสาระ/รายวิชา/Tier</div>
+    </div>`;
+  }).join('');
+
+  $('#detailBody').innerHTML=`
+    <div class="detail-hd" style="--accent:${ac}">
+      <div class="top-line"><h3>${p.id}</h3>
+        <span class="ksa" style="background:${ac};font-size:13px;padding:5px 12px">${p.ksa}</span></div>
+      <div class="full">${esc(p.full)}</div>
+      <div class="meta">
+        <span class="pill"><b>Domain:</b> ${esc(p.domain)}</span>
+        <span class="pill"><b>Milestone:</b> ${p.ms.map(m=>m.l==='na'?'–':m.l).join(' → ')}</span>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <h4>📈 Milestone รายชั้นปี (YLOs) <span class="tag" style="background:var(--threshold)">เกณฑ์กลุ่ม ①②③</span></h4>
+        <div class="ms-track">${msHtml}</div>
+        <div id="yloDetail-${id}" class="ylo-detail"></div>
+      </div>
+      <div class="panel">
+        <h4>🎯 เกณฑ์การบรรลุ PLO ระดับหลักสูตร 3 ระดับ</h4>
+        <div class="lvl"><div class="badge b-t">①</div><div class="txt"><b>ขั้นต่ำ · Threshold</b>${esc(p.prog.t)}</div></div>
+        <div class="lvl"><div class="badge b-g">②</div><div class="txt"><b>เป้าหมาย · Target</b>${esc(p.prog.g)}</div></div>
+        <div class="lvl"><div class="badge b-e">③</div><div class="txt"><b>ท้าทาย · Excellence</b>${esc(p.prog.e)}</div></div>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <h4>🔬 การประเมินโดยตรง ระดับหลักสูตร <span class="tag" style="background:var(--analytic)">Direct</span></h4>
+        <div class="assess-txt">${esc(p.direct)}</div>
+        <div class="assess-grid">
+          <div class="ag"><b>เครื่องมือ</b>${esc(p.directTool)||'—'}</div>
+          <div class="ag"><b>ช่วงเวลา</b>${esc(p.directTime)||'—'}</div>
+          <div class="ag"><b>ผู้รับผิดชอบ</b>${esc(p.directResp)||'—'}</div>
+          <div class="ag"><b>แนวทางเมื่อไม่บรรลุ</b>${esc(p.directRemedy)||'—'}</div>
+        </div>
+        <div class="indiv-crit">
+          <div class="ic2"><b>เกณฑ์รายบุคคล ① ขั้นต่ำ</b>${esc(p.directIndT)||'—'}</div>
+          <div class="ic2"><b>เกณฑ์รายบุคคล ② เป้าหมาย</b>${esc(p.directIndG)||'—'}</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>📋 การประเมินทางอ้อม <span class="tag" style="background:var(--analytic-2)">Indirect</span></h4>
+        <div class="assess-txt">${esc(p.indirect)}</div>
+        ${p.indirectRemedy?`<div class="assess-grid"><div class="ag" style="grid-column:1/-1"><b>การใช้ผล</b>${esc(p.indirectRemedy)}</div></div>`:''}
+      </div>
+    </div>
+
+    <div class="scorer">
+      <label>🧮 โหมดสาธิต: ลองกรอก "ร้อยละนักศึกษาที่ผ่านเกณฑ์ขั้นต่ำ" ของ ${p.id} เพื่อดูการประเมินผลและแผนช่วยเหลือ (Tier) แบบเชื่อมโยงอัตโนมัติ</label>
+      <div class="row">
+        <input type="range" min="0" max="100" value="82" id="sc" oninput="scoreEval('${p.id}')">
+        <div class="out" id="scOut">82%</div>
+        <div class="verdict" id="scV"></div>
+      </div>
+      <div id="scTier" style="font-size:13px;color:var(--muted);margin-top:8px"></div>
+    </div>`;
+  scoreEval(id);
+  switchView('detail');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Show YLO year detail (content / course / individual criteria / tier)
+let openYlo={};
+function showYlo(id,i){
+  const p=PLOS.find(x=>x.id===id);const m=p.ms[i];
+  const box=$('#yloDetail-'+id);
+  if(openYlo[id]===i){box.classList.remove('show');openYlo[id]=null;return;}
+  openYlo[id]=i;
+  const tiers=parseTier(m.tier);
+  const tierHtml=tiers.map(t=>`<div class="tier-note">${esc(t)}</div>`).join('');
+  box.innerHTML=`
+    <h5><span class="lvbadge" style="background:${lvlColor(m.l)}">${m.l} · ${LVLNAME[m.l]||''}</span> ${YR[i]}</h5>
+    <div class="ent"><b>สาระสำคัญ / ผลงานที่ประเมิน</b>${esc(m.content)||'—'}</div>
+    <div class="ent"><b>วิธีการประเมิน</b>${esc(m.method)||'—'}</div>
+    <div class="ylo-crit">
+      <span class="cc r-t">① กลุ่ม ${m.t}${m.sp?'% (CEFR B1)':'%'}</span>
+      <span class="cc r-g">② กลุ่ม ${m.g}${m.sp?'% (B1+)':'%'}</span>
+      <span class="cc r-e">③ กลุ่ม ${m.e}${m.sp?'% (B2+)':'%'}</span>
+    </div>
+    <div class="indiv-crit" style="margin-top:8px">
+      <div class="ic2"><b>เกณฑ์รายบุคคล ① ขั้นต่ำ</b>${esc(m.it)||'—'}</div>
+      <div class="ic2"><b>เกณฑ์รายบุคคล ② เป้าหมาย</b>${esc(m.ig)||'—'}</div>
+    </div>
+    <div style="font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:12px">แผนช่วยเหลือเมื่อไม่บรรลุ (Tier) — เฉพาะชั้นปีนี้</div>
+    ${tierHtml||'<div class="tier-note">—</div>'}`;
+  box.classList.add('show');
+}
+
+function pct(s){const m=String(s).match(/(\d+)/);return m?+m[1]:0;}
+function scoreEval(id){
+  const p=PLOS.find(x=>x.id===id);
+  const v=+$('#sc').value;$('#scOut').textContent=v+'%';
+  const T=pct(p.prog.t),G=pct(p.prog.g),E=pct(p.prog.e);
+  let label,bg,fg,bd='none',tier;
+  if(v>=E && id!=='PLO7'){label='③ บรรลุระดับท้าทาย';bg='#ffffff';fg='var(--threshold)';bd='1px solid var(--excellence-bd)';tier='🟢 เข้าเกณฑ์ Tier 3 (ส่งเสริม) — โครงการพัฒนาศักยภาพพิเศษ / Best Practice';}
+  else if(v>=G){label='② บรรลุระดับเป้าหมาย';bg='var(--target)';fg='var(--target-ink)';tier='🟢 ผ่านเป้าหมาย — กลุ่มศักยภาพสูงเข้าเกณฑ์ Tier 3';}
+  else if(v>=T){label='① ผ่านขั้นต่ำ';bg='var(--threshold)';fg='#fff';tier='🟡 ต่ำกว่าเป้าหมาย — เข้าเกณฑ์ Tier 2 (พัฒนา): Workshop + Peer learning';}
+  else{label='✕ ไม่ผ่านเกณฑ์ขั้นต่ำ';bg='var(--tier1)';fg='#fff';tier='🔴 เข้าเกณฑ์ Tier 1 (เร่งด่วน): IDP + ติวเสริม + สอบซ้ำ ภายใน 2 สัปดาห์';}
+  const sv=$('#scV');sv.textContent=label;sv.style.background=bg;sv.style.color=fg;sv.style.border=bd;
+  $('#scTier').innerHTML='<b>แผนช่วยเหลือที่เชื่อมโยง:</b> '+tier;
+}
+
+// Tiers
+function renderTiers(){
+  $('#tierWrap').innerHTML=TIERS.map(t=>`
+    <div class="tier">
+      <div class="th" style="background:${t.col}">
+        <div class="t">${t.e} ${t.n} <span style="font-weight:400;font-size:14px">· ${t.name}</span></div>
+        <div class="c">${esc(t.cond)}</div>
+      </div>
+      <div class="bd">
+        <span class="lab">มาตรการหลัก</span>
+        <ul>${t.m.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        <span class="lab">ผู้รับผิดชอบ</span><p>${esc(t.who)}</p>
+        <span class="lab">ระยะเวลา</span><p>${esc(t.time)}</p>
+        <span class="lab">ผลที่คาดหวัง</span><p style="color:${t.col};font-weight:600">${esc(t.exp)}</p>
+      </div>
+    </div>`).join('');
+}
+
+// Per-PLO tier criteria table
+function renderTierTable(id){
+  const p=PLOS.find(x=>x.id===id);
+  let rows=p.ms.map((m,i)=>{
+    if(m.l==='na')return `<tr><td class="ploname" style="cursor:default"><b>${YR[i]}</b></td><td colspan="2"><div class="na-box">– ไม่มีการประเมินในชั้นปีนี้</div></td></tr>`;
+    const tiers=parseTier(m.tier);
+    const t1=tiers.find(x=>/Tier\s*1/.test(x))||'—';
+    const t2=tiers.find(x=>/Tier\s*2/.test(x))||'—';
+    return `<tr>
+      <td class="ploname" style="cursor:default"><b>${YR[i]}</b><br><span style="color:${lvlColor(m.l)};font-weight:600">${m.l} · ${LVLNAME[m.l]||''}</span><br><span style="font-size:11px;color:var(--muted)">①${m.t}% ②${m.g}% ③${m.e}%</span></td>
+      <td><div class="txtcell" style="background:#fef2f2;border-left:3px solid var(--tier1);max-width:320px">${esc(t1)}</div></td>
+      <td><div class="txtcell" style="background:#fffbeb;border-left:3px solid var(--tier2);max-width:320px">${esc(t2)}</div></td>
+    </tr>`;
+  }).join('');
+  $('#tierTable').innerHTML=`<div style="overflow-x:auto"><table class="hm">
+    <tr><th class="rowh">ชั้นปี / Level</th><th>🔴 เกณฑ์ & มาตรการ Tier 1</th><th>🟡 เกณฑ์ & มาตรการ Tier 2</th></tr>
+    ${rows}</table></div>`;
+}
+
+// Cycle
+function renderCycle(){
+  $('#cycleWrap').innerHTML=CYCLE.map(c=>`
+    <div class="tl-item">
+      <div class="when">${esc(c.w)}</div>
+      <h4>${esc(c.t)}</h4>
+      <div style="font-size:13.5px">${esc(c.act)}</div>
+      <div class="tl-grid">
+        <div><b>ผู้รับผิดชอบ:</b> ${esc(c.who)}</div>
+        <div><b>กลไก:</b> ${esc(c.mech)}</div>
+        <div style="grid-column:1/-1"><b>ผลลัพธ์:</b> ${esc(c.out)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
+}
+$('#tabbar').addEventListener('click',e=>{if(e.target.dataset.v)switchView(e.target.dataset.v)});
+$('#backBtn').addEventListener('click',()=>switchView('overview'));
+
+// tier PLO selector
+function initTierSel(){
+  const sel=$('#tierPloSel');
+  sel.innerHTML=PLOS.map(p=>`<option value="${p.id}">${p.id} · ${esc(p.name)}</option>`).join('');
+  sel.addEventListener('change',e=>renderTierTable(e.target.value));
+  renderTierTable(PLOS[0].id);
+}
+
+renderGrid();renderDom();renderHeat();renderTiers();renderCycle();initTierSel();
+
+</script>
+</body>
+</html>
